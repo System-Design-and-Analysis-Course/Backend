@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: backend
+      DB_USER: backend
+      DB_PASSWORD: backend
+    ports:
+      - 8000:8000
+    volumes:
+      - ".:/src/"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13.6-bullseye
+    environment:
+      POSTGRES_DB: backend
+      POSTGRES_USER: backend
+      POSTGRES_PASSWORD: backend
+    ports:
+      - 5432:5432
+    volumes:
+      - "db_data:/var/lib/postgresql/data"
+
+volumes:
+  db_data:
