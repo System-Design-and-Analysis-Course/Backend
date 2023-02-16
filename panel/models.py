@@ -41,14 +41,14 @@ class File(models.Model):
     )
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
     date_info = models.ForeignKey(CustomDate, on_delete=models.PROTECT, null=True, blank=True)
-    libraries = models.ManyToManyField(Library, null=True, blank=True)
+    libraries = models.ManyToManyField(Library)
     content = models.FileField()
 
     class Meta:
         unique_together = ('name', 'content_type', 'user',)
 
 
-class Attachment:
+class Attachment(models.Model):
     name = models.CharField(max_length=50)
     date_info = models.ForeignKey(CustomDate, on_delete=models.PROTECT, null=True, blank=True)
     content = models.FileField(null=True, blank=True)
@@ -59,9 +59,9 @@ class Attachment:
         unique_together = ('file', 'name',)
 
 
-class SharedFile:
-    sender = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    receiver = models.ForeignKey(Customer, on_delete=models.CASCADE)
+class SharedFile(models.Model):
+    sender = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='sent_files')
+    receiver = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='received_files')
     file = models.ForeignKey(File, on_delete=models.CASCADE)
 
     class Meta:
