@@ -11,9 +11,11 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-#RUN ["chmod", "+x", "docker-entrypoint.sh"]
-#ENTRYPOINT ["/src/docker-entrypoint.sh"]
-#ENTRYPOINT ["./manage.py", "runserver", "8000"]
+RUN django-admin compilemessages
+
+RUN chmod +x docker-entrypoint.sh
+
+CMD ["./docker-entrypoint.sh"]
 
 
 
