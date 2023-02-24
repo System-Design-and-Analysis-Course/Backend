@@ -75,8 +75,6 @@ class CustomerViewSet(mixins.RetrieveModelMixin,
         return get_object_or_404(Customer, pk=self.kwargs['pk'])
 
     def update(self, request, *args, **kwargs):
-        if request.user.id != self.kwargs['pk']:
-            Response({"message": "invalid Token"}, status=403)
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         if 'password' not in request.data:
@@ -95,8 +93,6 @@ class CustomerViewSet(mixins.RetrieveModelMixin,
         self.perform_update(serializer)
 
         if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
@@ -108,10 +104,3 @@ class CustomerViewSet(mixins.RetrieveModelMixin,
         instance.delete()
         return Response({'message': 'successfully deleted'}, status=204)
 
-    def retrieve(self, request, *args, **kwargs):
-        return super(CustomerViewSet, self).retrieve(request, *args, **kwargs)
-
-    def authenticate(self, request):
-        if request.user.id != self.kwargs['pk']:
-            return False
-        return True
