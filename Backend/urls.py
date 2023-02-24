@@ -21,4 +21,5 @@ import user
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('user.urls')),
+    path('panel/', include('panel.urls')),
 ]
