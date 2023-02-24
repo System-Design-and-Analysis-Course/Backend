@@ -6,7 +6,13 @@ from user.models import Customer
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ('id', 'username')
+        fields = ('id', 'username', 'phone_number')
+        extra_kwargs = {'username': {'required': False}}
+
+    def validate_phone_number(self, phone_number):
+        if not phone_number.isdigit():
+            raise serializers.ValidationError({"phone_number": "incorrect phone number format"})
+        return phone_number
 
 
 # Register Serializer
