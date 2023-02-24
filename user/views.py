@@ -1,12 +1,13 @@
 # Create your views here.
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, viewsets, mixins
 from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
-from rest_framework.permissions import BasePermission
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -41,7 +42,7 @@ class RegisterAPI(generics.GenericAPIView):
 class LoginAPI(APIView):
     permission_classes = (permissions.AllowAny,)
 
-    def post(self, request, format=None):
+    def post(self, request, *args, **kwargs):
         serializer = AuthTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
@@ -52,6 +53,14 @@ class LoginAPI(APIView):
             "user": CustomerSerializer(user).data,
             "token": token[0].key
         })
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    request.user.auth_token.delete()
+    logout(request)
+    return Response({'message': 'User Logged out successfully'})
 
 
 class CustomerViewSet(mixins.RetrieveModelMixin,
