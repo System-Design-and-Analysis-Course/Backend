@@ -2,7 +2,7 @@ from django.utils.timezone import now
 from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 
-from panel.models import Library, CustomDate, File
+from panel.models import Library, CustomDate, File, Attachment
 from user.models import Customer
 
 
@@ -44,3 +44,12 @@ class FileSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'content_type', 'user', 'date_info')
         extra_kwargs = {'date_info': {'required': False}, }
 
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    file = PrimaryKeyRelatedField(queryset=File.objects.all())
+    date_info = CustomDateSerializer(required=False)
+
+    class Meta:
+        model = Attachment
+        fields = ('id', 'name', 'date_info', 'value', 'content', 'file')
+        extra_kwargs = {'date_info': {'required': False}, }

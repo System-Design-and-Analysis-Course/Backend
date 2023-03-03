@@ -5,8 +5,8 @@ from rest_framework import viewsets, mixins
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 
-from panel.models import Library, File, CustomDate
-from panel.serializers import LibrarySerializer, FileSerializer
+from panel.models import Library, File, CustomDate, Attachment
+from panel.serializers import LibrarySerializer, FileSerializer, AttachmentSerializer
 from user.models import Customer
 
 
@@ -76,4 +76,43 @@ class FileViewSet(mixins.RetrieveModelMixin,
         file.save()
         file.libraries.add(library)
         serialized_data = self.get_serializer(file)
+        return Response(serialized_data.data, status=200)
+
+
+class AttachmentViewSet(mixins.RetrieveModelMixin,
+                        mixins.CreateModelMixin,
+                        mixins.DestroyModelMixin,
+                        mixins.ListModelMixin,
+                        viewsets.GenericViewSet):
+    serializer_class = AttachmentSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_object(self):
+        return get_object_or_404(Attachment, pk=self.kwargs['pk'])
+
+    def get_queryset(self):
+        return Attachment.objects.filter(file__id=self.kwargs['file_id'])
+
+    def retrieve(self, request, *args, **kwargs):
+        if 'pk' not in self.kwargs:
+            return super(AttachmentViewSet, self).list(request, *args, **kwargs)
+        obj = self.get_object()
+        if obj.content:
+            return HttpResponse(self.get_object().content)
+        return Response({'message': 'attachment has no content to download'}, status=404)
+
+    def create(self, request, *args, **kwargs):
+        file = get_object_or_404(File, pk=self.kwargs['file_id'])
+        date_info = CustomDate(created_at=now(), last_modified_at=now())
+        date_info.save()
+        if 'content' in request.data:
+            attachment = Attachment(name=request.data['name'], file=file,
+                                    date_info=date_info,
+                                    content=request.FILES['content'])
+        else:
+            attachment = Attachment(name=request.data['name'], file=file,
+                                    date_info=date_info,
+                                    value=request.data['value'])
+        attachment.save()
+        serialized_data = self.get_serializer(attachment)
         return Response(serialized_data.data, status=200)
