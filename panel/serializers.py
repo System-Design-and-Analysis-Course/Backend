@@ -2,7 +2,7 @@ from django.utils.timezone import now
 from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 
-from panel.models import Library, CustomDate
+from panel.models import Library, CustomDate, File
 from user.models import Customer
 
 
@@ -33,3 +33,14 @@ class LibrarySerializer(serializers.ModelSerializer):
         date_info.save()
         validated_data['date_info'] = date_info
         return super(LibrarySerializer, self).update(instance, validated_data)
+
+
+class FileSerializer(serializers.ModelSerializer):
+    user = PrimaryKeyRelatedField(queryset=Customer.objects.all())
+    date_info = CustomDateSerializer(required=False)
+
+    class Meta:
+        model = File
+        fields = ('id', 'name', 'content_type', 'user', 'date_info')
+        extra_kwargs = {'date_info': {'required': False}, }
+
