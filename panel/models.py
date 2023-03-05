@@ -42,7 +42,7 @@ class File(models.Model):
     user = models.ForeignKey(Customer, on_delete=models.CASCADE)
     date_info = models.ForeignKey(CustomDate, on_delete=models.PROTECT, null=True, blank=True)
     libraries = models.ManyToManyField(Library)
-    content = models.FileField()
+    content = models.FileField(upload_to='static/')
 
     class Meta:
         unique_together = ('name', 'content_type', 'user',)
@@ -51,7 +51,7 @@ class File(models.Model):
 class Attachment(models.Model):
     name = models.CharField(max_length=50)
     date_info = models.ForeignKey(CustomDate, on_delete=models.PROTECT, null=True, blank=True)
-    content = models.FileField(null=True, blank=True)
+    content = models.FileField(null=True, blank=True, upload_to='static/')
     value = models.TextField(max_length=500, null=True, blank=True)
     file = models.ForeignKey(File, on_delete=models.CASCADE)
 

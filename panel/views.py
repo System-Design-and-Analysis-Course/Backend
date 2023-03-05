@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import BasePermission
@@ -63,7 +63,7 @@ class FileViewSet(mixins.RetrieveModelMixin,
     def retrieve(self, request, *args, **kwargs):
         if 'pk' not in self.kwargs:
             return super(FileViewSet, self).list(request, *args, **kwargs)
-        return HttpResponse(self.get_object().content)
+        return redirect('/'+self.get_object().content.name)
 
     def create(self, request, *args, **kwargs):
         user = get_object_or_404(Customer, pk=self.kwargs['user_id'])
@@ -98,7 +98,7 @@ class AttachmentViewSet(mixins.RetrieveModelMixin,
             return super(AttachmentViewSet, self).list(request, *args, **kwargs)
         obj = self.get_object()
         if obj.content:
-            return HttpResponse(self.get_object().content)
+            return redirect('/'+obj.content.name)
         return Response({'message': 'attachment has no content to download'}, status=404)
 
     def create(self, request, *args, **kwargs):
